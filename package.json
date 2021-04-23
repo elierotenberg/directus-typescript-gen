@@ -1,11 +1,13 @@
 {
   "name": "directus-typescript-gen",
   "version": "0.0.1",
-  "description": "",
+  "description": "Extract type definitions from a live Directus server",
   "main": "build/cli.js",
+  "bin": {
+    "directus-typescript-gen": "./build/cli.js"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -p .",
+    "build": "rm -rf build && tsc -p . && chmod u+x ./build/cli.js",
     "test-env:docker:up": "docker-compose -f docker-compose.test.yml up --build",
     "test-env:docker:down": "docker-compose -f docker-compose.test.yml down -v",
     "test-env:docker": "npm run test-env:docker:down && npm run test-env:docker:up",
