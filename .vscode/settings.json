@@ -1,0 +1,50 @@
+{
+  "editor.fontLigatures": true,
+  "editor.suggestSelection": "recentlyUsed",
+  "editor.tabSize": 2,
+  "emmet.showAbbreviationSuggestions": false,
+  "emmet.showExpandedAbbreviation": "never",
+  "emmet.excludeLanguages": [
+    "typescript",
+    "javascript"
+  ],
+  "eslint.packageManager": "npm",
+  "eslint.options": {
+    "extensions": [
+      ".js",
+      ".ts"
+    ]
+  },
+  "eslint.workingDirectories": [
+    {
+      "directory": ".",
+      "changeProcessCWD": true
+    },
+  ],
+  "eslint.lintTask.enable": true,
+  "files.associations": {
+    "*.sql": "sql",
+    "*.d.ts": "typescript"
+  },
+  "files.autoSave": "off",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "[javascript]": {
+    "editor.formatOnSave": false
+  },
+  "[typescript]": {
+    "editor.formatOnSave": false
+  },
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.suggest.paths": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "pgFormatter.placeholder": "\\$\\{.*\\}",
+  "pgFormatter.noGrouping": true,
+  "pgFormatter.commaBreak": true,
+  "editor.suggest.showSnippets": false,
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "editor.snippetSuggestions": "none",
+  "editor.wordWrap": "on",
+  "editor.formatOnSave": true
+}

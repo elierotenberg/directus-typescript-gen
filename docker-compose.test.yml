@@ -1,0 +1,34 @@
+version: "3.2"
+services:
+  directus-typescript-gen-pg:
+    image: postgres:13
+    container_name: directus-typescript-gen-pg
+    env_file:
+      - ./src/__tests__/fixtures/postgres.env
+    volumes:
+      - directus-typescript-gen-pgdata:/var/lib/postgresql/data
+      - ./src/__tests__/fixtures/schema.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+
+    networks:
+      - directus-typescript-gen
+    ports:
+      - "17056:17056"
+    command: -p 17056
+
+  directus-typescript-gen-directus:
+    image: directus/directus:v9.0.0-rc.56
+    container_name: directus-typescript-gen-directus
+    ports:
+      - "17055:17055"
+    env_file:
+      - ./src/__tests__/fixtures/directus.env
+    networks:
+      - directus-typescript-gen
+    depends_on:
+      - directus-typescript-gen-pg
+
+networks:
+  directus-typescript-gen:
+
+volumes:
+  directus-typescript-gen-pgdata:
