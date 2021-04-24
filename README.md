@@ -12,6 +12,34 @@ Use the generator on a running Directus server to generate the TypeScript defini
 npx directus-typescript-gen --host http://localhost:8055 --email admin@example.com --password <...> --typeName MyCollections --outFile my-collections.d.ts
 ```
 
+The generated file will look like:
+
+```ts
+export interface Article {
+  article_id: string;
+  title: string;
+  body: string;
+  publish_date?: string;
+}
+
+export interface ArticleAuthor {
+  article_id: string;
+  author_email: string;
+}
+
+export interface Author {
+  email: string;
+  first_name: string;
+  last_name: string;
+}
+
+export type MyCollections = {
+  article: Article;
+  article_author: ArticleAuthor;
+  author: Author;
+};
+```
+
 Then instantiate the Directus SDK client:
 
 ```ts
