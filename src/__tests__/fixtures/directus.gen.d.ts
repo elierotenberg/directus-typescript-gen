@@ -17,7 +17,7 @@ export interface Author {
 }
 
 export type MyCollections = {
-  articles: Article;
-  article_authors: ArticleAuthor;
-  authors: Author;
+  article: Article;
+  article_author: ArticleAuthor;
+  author: Author;
 };

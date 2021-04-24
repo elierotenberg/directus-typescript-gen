@@ -98,7 +98,7 @@ export const parseSchemas = (
       const title = key.slice("Items".length);
       const openApiSchema = parseOpenApiSchema(schema);
       return {
-        collection: `${openApiSchema["x-collection"]}s`,
+        collection: `${openApiSchema["x-collection"]}`,
         schema: openApiSchemaToJsonSchema(title, openApiSchema),
       };
     });
