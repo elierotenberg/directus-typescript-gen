@@ -4,7 +4,7 @@ import { promises } from "fs";
 import { resolve } from "path";
 
 import { mapAsyncConcurrent } from "typed-utilities";
-import { isString } from "typed-assert";
+import { isOptionOfType, isString } from "typed-assert";
 import yargs from "yargs";
 import { compile } from "json-schema-to-typescript";
 
@@ -19,6 +19,7 @@ const main = async (): Promise<void> => {
     readonly host?: string;
     readonly email?: string;
     readonly password?: string;
+    readonly typeName?: string;
     readonly outFile?: string;
   };
 
@@ -26,13 +27,15 @@ const main = async (): Promise<void> => {
     .option("host", { demandOption: true, type: "string" })
     .option("email", { demandOption: true, type: "string" })
     .option("password", { demandOption: true, type: "string" })
+    .option("typeName", { demandOption: false, type: "string" })
     .option("outFile", { demandOption: true, type: "string" })
     .help().argv;
 
-  const { host, email, password, outFile } = argv;
+  const { host, email, password, typeName, outFile } = argv;
   isString(host);
   isString(email);
   isString(password);
+  isOptionOfType(typeName, isString);
   isString(outFile);
   const spec = await fetchDirectusSpec({
     email,
@@ -52,7 +55,10 @@ const main = async (): Promise<void> => {
       }),
   );
 
-  const collectionsType = createCollectionsType(schemas);
+  const collectionsType = createCollectionsType(
+    typeName ?? "Collections",
+    schemas,
+  );
 
   const source = [...definitions, collectionsType].join("\n");
 

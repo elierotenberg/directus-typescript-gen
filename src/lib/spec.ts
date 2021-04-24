@@ -105,9 +105,10 @@ export const parseSchemas = (
 };
 
 export const createCollectionsType = (
+  typeName: string,
   schemas: { readonly collection: string; readonly schema: JsonSchema }[],
 ): string => {
-  const prefix = `export type Collections = {`;
+  const prefix = `export type ${typeName} = {`;
   const suffix = `};`;
   const properties = schemas.map(
     ({ collection, schema }) => `  ${collection}: ${schema.title};`,
