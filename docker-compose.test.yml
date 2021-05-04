@@ -16,7 +16,7 @@ services:
     command: -p 17056
 
   directus-typescript-gen-directus:
-    image: directus/directus:v9.0.0-rc.56
+    image: directus/directus:v9.0.0-rc.62
     container_name: directus-typescript-gen-directus
     ports:
       - "17055:17055"
