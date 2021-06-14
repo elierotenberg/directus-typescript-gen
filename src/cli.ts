@@ -3,8 +3,8 @@
 import { promises } from "fs";
 import { resolve } from "path";
 
+import { z } from "zod";
 import { mapAsyncConcurrent } from "typed-utilities";
-import { isOptionOfType, isString } from "typed-assert";
 import yargs from "yargs";
 import { compile } from "json-schema-to-typescript";
 
@@ -14,29 +14,28 @@ import {
   parseSchemas,
 } from "./lib/spec";
 
-const main = async (): Promise<void> => {
-  type Argv = {
-    readonly host?: string;
-    readonly email?: string;
-    readonly password?: string;
-    readonly typeName?: string;
-    readonly outFile?: string;
-  };
+const Argv = z.object({
+  host: z.string(),
+  email: z.string(),
+  password: z.string(),
+  typeName: z.string().nullish(),
+  outFile: z.string(),
+});
 
-  const argv: Argv = yargs(process.argv.slice(2))
-    .option("host", { demandOption: true, type: "string" })
-    .option("email", { demandOption: true, type: "string" })
-    .option("password", { demandOption: true, type: "string" })
-    .option("typeName", { demandOption: false, type: "string" })
-    .option("outFile", { demandOption: true, type: "string" })
-    .help().argv;
+type Argv = z.infer<typeof Argv>;
+
+const main = async (): Promise<void> => {
+  const argv = Argv.parse(
+    await yargs(process.argv.slice(2))
+      .option("host", { demandOption: true, type: "string" })
+      .option("email", { demandOption: true, type: "string" })
+      .option("password", { demandOption: true, type: "string" })
+      .option("typeName", { demandOption: false, type: "string" })
+      .option("outFile", { demandOption: true, type: "string" })
+      .help().argv,
+  );
 
   const { host, email, password, typeName, outFile } = argv;
-  isString(host);
-  isString(email);
-  isString(password);
-  isOptionOfType(typeName, isString);
-  isString(outFile);
   const spec = await fetchDirectusSpec({
     email,
     host,

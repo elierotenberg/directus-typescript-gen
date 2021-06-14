@@ -1,11 +1,5 @@
 import fetch from "node-fetch";
-import {
-  isBoolean,
-  isExactly,
-  isOptionOfType,
-  isRecord,
-  isString,
-} from "typed-assert";
+import { z } from "zod";
 
 export const fetchDirectusSpec = async ({
   email,
@@ -40,36 +34,31 @@ export const fetchDirectusSpec = async ({
   return spec;
 };
 
-type OpenApiSchema = {
-  readonly type: "object";
-  readonly properties: {
-    readonly [propertyKey: string]: {
-      readonly nullable?: boolean;
-      readonly [paramKey: string]: unknown;
-    };
-  };
-  readonly ["x-collection"]: string;
-};
+const OpenApiSchema = z.object({
+  type: z.literal("object"),
+  properties: z.record(
+    z.intersection(
+      z.object({
+        nullable: z.boolean().nullish(),
+      }),
+      z.record(z.unknown()),
+    ),
+  ),
+  ["x-collection"]: z.string(),
+});
 
-const parseOpenApiSchema = (input: unknown): OpenApiSchema => {
-  isRecord(input);
-  const { type, properties, ["x-collection"]: xCollection } = input;
-  isExactly(type, "object");
-  isRecord(properties);
-  isString(xCollection);
-  for (const [propertyKey, definition] of Object.entries(properties)) {
-    isString(propertyKey);
-    isRecord(definition);
-    isOptionOfType(definition.nullable, isBoolean);
-  }
-  return input as OpenApiSchema;
-};
+type OpenApiSchema = z.infer<typeof OpenApiSchema>;
 
-type JsonSchema = OpenApiSchema & {
-  readonly title: string;
-  readonly additionalProperties: false;
-  readonly required: string[];
-};
+const JsonSchema = z.intersection(
+  OpenApiSchema,
+  z.object({
+    title: z.string(),
+    additionalProperties: z.literal(false),
+    required: z.array(z.string()),
+  }),
+);
+
+type JsonSchema = z.infer<typeof JsonSchema>;
 
 const openApiSchemaToJsonSchema = (
   title: string,
@@ -83,20 +72,24 @@ const openApiSchemaToJsonSchema = (
   additionalProperties: false,
 });
 
+const Spec = z.object({
+  components: z.object({
+    schemas: z.record(z.unknown()),
+  }),
+});
+
 export const parseSchemas = (
   spec: unknown,
 ): { readonly collection: string; readonly schema: JsonSchema }[] => {
-  isRecord(spec);
-  const { components } = spec;
-  isRecord(components);
-  const { schemas } = components;
-  isRecord(schemas);
+  const {
+    components: { schemas },
+  } = Spec.parse(spec);
 
   return Object.entries(schemas)
     .filter(([key]) => key.startsWith("Items"))
     .map(([key, schema]) => {
       const title = key.slice("Items".length);
-      const openApiSchema = parseOpenApiSchema(schema);
+      const openApiSchema = OpenApiSchema.parse(schema);
       return {
         collection: `${openApiSchema["x-collection"]}`,
         schema: openApiSchemaToJsonSchema(title, openApiSchema),

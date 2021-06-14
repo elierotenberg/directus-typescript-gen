@@ -1,6 +1,6 @@
 {
   "name": "directus-typescript-gen",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Extract type definitions from a live Directus server",
   "main": "build/cli.js",
   "bin": {
@@ -25,26 +25,26 @@
   },
   "homepage": "https://github.com/elierotenberg/directus-typescript-gen#readme",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.22.1",
-    "@typescript-eslint/parser": "^4.22.1",
-    "eslint": "^7.25.0",
+    "@typescript-eslint/eslint-plugin": "^4.26.1",
+    "@typescript-eslint/parser": "^4.26.1",
+    "eslint": "^7.28.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-prettier": "^3.4.0",
-    "prettier": "^2.2.1",
-    "typescript": "^4.2.4"
+    "prettier": "^2.3.1",
+    "typescript": "^4.3.2"
   },
   "dependencies": {
     "@types/js-yaml": "^4.0.1",
-    "@types/node": "^15.0.1",
+    "@types/node": "^15.12.2",
     "@types/node-fetch": "^2.5.10",
-    "@types/yargs": "^16.0.1",
+    "@types/yargs": "^17.0.0",
     "js-yaml": "^4.1.0",
     "json-schema-to-typescript": "^10.1.4",
     "node-fetch": "^2.6.1",
-    "tslib": "^2.2.0",
-    "typed-assert": "^1.0.7",
-    "typed-utilities": "^1.9.0",
-    "yargs": "^17.0.1"
+    "tslib": "^2.3.0",
+    "typed-utilities": "^1.11.0",
+    "yargs": "^17.0.1",
+    "zod": "^3.2.0"
   }
 }
