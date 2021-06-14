@@ -1,6 +1,6 @@
 {
   "name": "directus-typescript-gen",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Extract type definitions from a live Directus server",
   "main": "build/cli.js",
   "bin": {
@@ -12,7 +12,7 @@
     "test-env:docker:down": "docker-compose -f docker-compose.test.yml down -v",
     "test-env:docker": "npm run test-env:docker:down && npm run test-env:docker:up",
     "test-env:cli": "npm run build && node build/cli.js",
-    "test-env:cli:gen": "npm run test-env:cli -- --host http://localhost:17055 --email admin@example.com --password admin-password --typeName MyCollections --outFile src/__tests__/fixtures/directus.gen.d.ts"
+    "test-env:cli:gen": "npm run test-env:cli -- --host http://localhost:17055 --email admin@example.com --password admin-password --typeName MyCollections --specOutFile src/__tests__/fixtures/directus.spec.json --outFile src/__tests__/fixtures/directus.gen.d.ts"
   },
   "repository": {
     "type": "git",
@@ -42,6 +42,7 @@
     "js-yaml": "^4.1.0",
     "json-schema-to-typescript": "^10.1.4",
     "node-fetch": "^2.6.1",
+    "openapi-typescript": "^3.4.1",
     "tslib": "^2.3.0",
     "typed-utilities": "^1.11.0",
     "yargs": "^17.0.1",
