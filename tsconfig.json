@@ -68,7 +68,7 @@
   "exclude": [
     "node_modules",
     "build",
-    "typedoc"
+    "typedoc",
   ],
   "compileOnSave": true
 }

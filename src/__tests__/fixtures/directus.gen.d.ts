@@ -329,6 +329,7 @@ export interface components {
     ItemsArticleAuthor: {
       article_id?: string;
       author_email?: string;
+      article_author_id?: string;
     };
     ItemsAuthor: {
       email?: string;
@@ -3241,3 +3242,9 @@ export interface operations {
     };
   };
 }
+
+export type MyCollections = {
+  article: components["schemas"]["ItemsArticle"];
+  article_author: components["schemas"]["ItemsArticleAuthor"];
+  author: components["schemas"]["ItemsAuthor"];
+};

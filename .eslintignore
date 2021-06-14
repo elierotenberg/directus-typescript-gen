@@ -1,2 +1,3 @@
 build
 node_modules
+src/__tests__/fixtures/**/*.d.ts

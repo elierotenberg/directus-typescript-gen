@@ -12,8 +12,9 @@ CREATE TABLE article (
 );
 
 CREATE TABLE article_author (
-  article_id text NOT NULL REFERENCES article (article_id),
-  author_email text NOT NULL REFERENCES author (email),
-  PRIMARY KEY (article_id, author_email)
+  article_id text NOT NULL REFERENCES article (article_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  author_email text NOT NULL REFERENCES author (email) ON UPDATE CASCADE ON DELETE CASCADE,
+  article_author_id text NOT NULL PRIMARY KEY DEFAULT gen_random_uuid (),
+  UNIQUE (article_id, author_email)
 );
 

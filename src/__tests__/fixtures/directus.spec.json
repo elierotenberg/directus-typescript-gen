@@ -5456,6 +5456,10 @@
           "author_email": {
             "nullable": false,
             "type": "string"
+          },
+          "article_author_id": {
+            "nullable": false,
+            "type": "string"
           }
         },
         "x-collection": "article_author"
