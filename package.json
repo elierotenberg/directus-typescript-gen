@@ -46,7 +46,6 @@
     "@types/node": "^15.12.2",
     "@types/node-fetch": "^2.5.10",
     "@types/yargs": "^17.0.0",
-    "change-case": "^4.1.2",
     "js-yaml": "^4.1.0",
     "json-schema-to-typescript": "^10.1.4",
     "node-fetch": "^2.6.1",

@@ -3,7 +3,6 @@
 import { promises } from "fs";
 import { resolve } from "path";
 
-import { snakeCase } from "change-case";
 import fetch from "node-fetch";
 import { z } from "zod";
 import yargs from "yargs";
@@ -14,6 +13,7 @@ const Argv = z.object({
   email: z.string(),
   password: z.string(),
   typeName: z.string(),
+  directusTypeName: z.string(),
   specOutFile: z.string().nullish(),
   outFile: z.string(),
 });
@@ -27,12 +27,21 @@ const main = async (): Promise<void> => {
       .option(`email`, { demandOption: true, type: `string` })
       .option(`password`, { demandOption: true, type: `string` })
       .option(`typeName`, { demandOption: true, type: `string` })
+      .option(`directusTypeName`, { demandOption: true, type: `string` })
       .option(`specOutFile`, { demandOption: false, type: `string` })
       .option(`outFile`, { demandOption: true, type: `string` })
       .help().argv,
   );
 
-  const { host, email, password, typeName, specOutFile, outFile } = argv;
+  const {
+    host,
+    email,
+    password,
+    typeName,
+    directusTypeName,
+    specOutFile,
+    outFile,
+  } = argv;
 
   const {
     data: { access_token: token },
@@ -46,14 +55,22 @@ const main = async (): Promise<void> => {
     })
   ).json();
 
-  const spec = await (
+  const spec = (await (
     await fetch(`${host}/server/specs/oas`, {
       method: `get`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-  ).json();
+  ).json()) as OpenAPI3 & {
+    components: {
+      schemas: {
+        [key: string]: {
+          [`x-collection`]: string;
+        };
+      };
+    };
+  };
 
   if (specOutFile) {
     await promises.writeFile(
@@ -65,27 +82,35 @@ const main = async (): Promise<void> => {
     );
   }
 
-  const baseSource = openApiTs(spec as OpenAPI3);
+  const baseSource = openApiTs(spec);
 
-  const itemPattern = /^    Items([^\:]*)/;
+  const exportUserCollectionsProperties: string[] = [];
+  const exportDirectusCollectionsProperties: string[] = [];
 
-  const exportProperties = baseSource
-    .split(`\n`)
-    .map((line) => {
-      const match = line.match(itemPattern);
-      if (!match) {
-        return null;
-      }
-      const [, collectionName] = match;
-      const propertyKey = snakeCase(collectionName);
-      return `  ${propertyKey}: components["schemas"]["Items${collectionName}"];`;
-    })
-    .filter((line): line is string => typeof line === `string`)
-    .join(`\n`);
+  for (const [schemaKey, schema] of Object.entries(spec.components.schemas)) {
+    const collectionId = schema[`x-collection`];
+    const line = `  ${collectionId}: components["schemas"]["${schemaKey}"];`;
+    const isUserCollection = schemaKey.startsWith(`Items`);
 
-  const exportSource = `export type ${typeName} = {\n${exportProperties}\n};`;
+    (isUserCollection
+      ? exportUserCollectionsProperties
+      : exportDirectusCollectionsProperties
+    ).push(line);
+  }
 
-  const source = [baseSource, exportSource].join(`\n`);
+  const exportUserCollectionsSource = `export type ${typeName} = {\n${exportUserCollectionsProperties.join(
+    `\n`,
+  )}\n};\n`;
+
+  const exportDirectusCollectionsSource = `export type ${directusTypeName} = {\n${exportDirectusCollectionsProperties.join(
+    `\n`,
+  )}\n};\n`;
+
+  const source = [
+    baseSource,
+    exportUserCollectionsSource,
+    exportDirectusCollectionsSource,
+  ].join(`\n`);
 
   await promises.writeFile(resolve(process.cwd(), outFile), source, {
     encoding: `utf-8`,
