@@ -12,8 +12,9 @@ const Argv = z.object({
   host: z.string(),
   email: z.string(),
   password: z.string(),
-  typeName: z.string(),
-  directusTypeName: z.string(),
+  appTypeName: z.string().optional(),
+  directusTypeName: z.string().optional(),
+  allTypeName: z.string().optional(),
   specOutFile: z.string().nullish(),
   outFile: z.string(),
 });
@@ -26,8 +27,22 @@ const main = async (): Promise<void> => {
       .option(`host`, { demandOption: true, type: `string` })
       .option(`email`, { demandOption: true, type: `string` })
       .option(`password`, { demandOption: true, type: `string` })
-      .option(`typeName`, { demandOption: true, type: `string` })
-      .option(`directusTypeName`, { demandOption: true, type: `string` })
+      .option(`appTypeName`, {
+        alias: `typeName`,
+        demandOption: false,
+        type: `string`,
+        default: `AppCollections`,
+      })
+      .option(`directusTypeName`, {
+        demandOption: false,
+        type: `string`,
+        default: `DirectusCollections`,
+      })
+      .option(`allTypeName`, {
+        demandOption: false,
+        type: `string`,
+        default: `Collections`,
+      })
       .option(`specOutFile`, { demandOption: false, type: `string` })
       .option(`outFile`, { demandOption: true, type: `string` })
       .help().argv,
@@ -37,8 +52,9 @@ const main = async (): Promise<void> => {
     host,
     email,
     password,
-    typeName,
-    directusTypeName,
+    appTypeName: appCollectionsTypeName,
+    directusTypeName: directusCollectionsTypeName,
+    allTypeName: allCollectionsTypeName,
     specOutFile,
     outFile,
   } = argv;
@@ -98,18 +114,21 @@ const main = async (): Promise<void> => {
     ).push(line);
   }
 
-  const exportUserCollectionsSource = `export type ${typeName} = {\n${exportUserCollectionsProperties.join(
+  const exportUserCollectionsType = `export type ${appCollectionsTypeName} = {\n${exportUserCollectionsProperties.join(
     `\n`,
   )}\n};\n`;
 
-  const exportDirectusCollectionsSource = `export type ${directusTypeName} = {\n${exportDirectusCollectionsProperties.join(
+  const exportDirectusCollectionsType = `export type ${directusCollectionsTypeName} = {\n${exportDirectusCollectionsProperties.join(
     `\n`,
   )}\n};\n`;
+
+  const exportAllCollectionsType = `export type ${allCollectionsTypeName} = ${directusCollectionsTypeName} & ${appCollectionsTypeName};\n`;
 
   const source = [
     baseSource,
-    exportUserCollectionsSource,
-    exportDirectusCollectionsSource,
+    exportUserCollectionsType,
+    exportDirectusCollectionsType,
+    exportAllCollectionsType,
   ].join(`\n`);
 
   await promises.writeFile(resolve(process.cwd(), outFile), source, {
