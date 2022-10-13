@@ -3,6 +3,7 @@
   "version": "0.2.1",
   "description": "Extract type definitions from a live Directus server",
   "main": "build/cli.js",
+  "type": "module",
   "bin": {
     "directus-typescript-gen": "./build/cli.js"
   },
