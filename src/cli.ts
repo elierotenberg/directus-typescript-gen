@@ -61,7 +61,7 @@ const main = async (): Promise<void> => {
 
   const {
     data: { access_token: token },
-  } = await (
+  } = (await (
     await fetch(new URL(`/auth/login`, host).href, {
       method: `post`,
       body: JSON.stringify({ email, password, mode: `json` }),
@@ -69,7 +69,7 @@ const main = async (): Promise<void> => {
         "Content-Type": `application/json`,
       },
     })
-  ).json();
+  ).json()) as { data: { access_token: string } };
 
   const spec = (await (
     await fetch(`${host}/server/specs/oas`, {
