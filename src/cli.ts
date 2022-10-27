@@ -11,8 +11,9 @@ import openApiTs, { OpenAPI3 } from "openapi-typescript";
 
 const Argv = z.object({
   host: z.string(),
-  email: z.string(),
-  password: z.string(),
+  email: z.string().nullish(),
+  password: z.string().nullish(),
+  staticToken: z.string().nullish(),
   typeName: z.string(),
   specOutFile: z.string().nullish(),
   outFile: z.string(),
@@ -24,35 +25,51 @@ const main = async (): Promise<void> => {
   const argv = Argv.parse(
     await yargs(process.argv.slice(2))
       .option(`host`, { demandOption: true, type: `string` })
-      .option(`email`, { demandOption: true, type: `string` })
-      .option(`password`, { demandOption: true, type: `string` })
+      .option(`email`, { demandOption: false, type: `string` })
+      .option(`password`, { demandOption: false, type: `string` })
       .option(`typeName`, { demandOption: true, type: `string` })
       .option(`specOutFile`, { demandOption: false, type: `string` })
+      .option(`staticToken`, { demandOption: false, type: `string` })
       .option(`outFile`, { demandOption: true, type: `string` })
       .help().argv,
   );
 
-  const { host, email, password, typeName, specOutFile, outFile } = argv;
+  const { host, email, password, typeName, specOutFile, outFile, staticToken } =
+    argv;
 
-  const {
-    data: { access_token: token },
-  } = await (
-    await fetch(new URL(`/auth/login`, host).href, {
-      method: `post`,
-      body: JSON.stringify({ email, password, mode: `json` }),
-      headers: {
-        "Content-Type": `application/json`,
-      },
-    })
-  ).json();
+  let accessToken = ``;
+  if (!staticToken) {
+    if (!email || !password) {
+      throw new Error(`Must provide either staticToken or email and password`);
+    }
+    const {
+      data: { access_token: token },
+    } = await (
+      await fetch(new URL(`/auth/login`, host).href, {
+        method: `post`,
+        body: JSON.stringify({ email, password, mode: `json` }),
+        headers: {
+          "Content-Type": `application/json`,
+        },
+      })
+    ).json();
+    accessToken = token;
+  }
 
   const spec = await (
-    await fetch(`${host}/server/specs/oas`, {
-      method: `get`,
-      headers: {
-        Authorization: `Bearer ${token}`,
+    await fetch(
+      `${host}/server/specs/oas${
+        staticToken ? `?access_token=${staticToken}` : ``
+      }`,
+      {
+        method: `get`,
+        headers: staticToken
+          ? {}
+          : {
+              Authorization: `Bearer ${accessToken}`,
+            },
       },
-    })
+    )
   ).json();
 
   if (specOutFile) {
