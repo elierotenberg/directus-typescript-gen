@@ -1,4 +1,4 @@
-# directus-typescript-gen-with-static-token
+# directus-typescript-generator-with-static-token
 
 
 This package is originally created by Elie Rotenberg <elie@rotenberg.io>
@@ -15,7 +15,7 @@ This enables type-checking, autocompletion, and other TypeScript goodness.
 Use the generator on a running Directus server to generate the TypeScript definitions:
 
 ```
-npx directus-typescript-gen --host http://localhost:8055 --email admin@example.com --password <...> --typeName MyCollections --outFile my-collections.d.ts
+npx directus-typescript-generator --host http://localhost:8055 --email admin@example.com --password <...> --typeName MyCollections --outFile my-collections.d.ts
 ```
 
 ## Usage with static token
@@ -23,7 +23,7 @@ npx directus-typescript-gen --host http://localhost:8055 --email admin@example.c
 Use the generator on a running Directus server to generate the TypeScript definitions:
 
 ```
-npx directus-typescript-gen --host http://localhost:8055 --staticToken pixnJMxRKpx2uxVpD2OJxhwCxbPoHxlhJ --typeName MyCollections --outFile my-collections.d.ts
+npx directus-typescript-generator --host http://localhost:8055 --staticToken pixnJMxRKpx2uxVpD2OJxhwCxbPoHxlhJ --typeName MyCollections --outFile my-collections.d.ts
 ```
 
 The generated file will look like:
