@@ -1,6 +1,6 @@
 {
-  "name": "directus-typescript-gen",
-  "version": "0.2.1",
+  "name": "directus-typescript-generator",
+  "version": "0.0.1",
   "description": "Extract type definitions from a live Directus server",
   "main": "build/cli.js",
   "bin": {
@@ -19,14 +19,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/elierotenberg/directus-typescript-gen.git"
+    "url": "git+https://github.com/ubeytdemirr/directus-typescript-gen.git"
   },
-  "author": "Elie Rotenberg <elie@rotenberg.io>",
+  "author": "Ubeyt Demir <ubeytdemir4se@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/elierotenberg/directus-typescript-gen/issues"
+    "url": "https://github.com/ubeytdemirr/directus-typescript-gen/issues"
   },
-  "homepage": "https://github.com/elierotenberg/directus-typescript-gen#readme",
+  "homepage": "https://github.com/ubeytdemirr/directus-typescript-gen#readme",
   "devDependencies": {
     "@directus/sdk": "*",
     "@types/jest": "^26.0.23",
