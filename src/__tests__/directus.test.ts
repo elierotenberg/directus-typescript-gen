@@ -11,7 +11,7 @@ describe(`Directus SDK`, () => {
       password: `admin-password`,
     });
 
-    expect(await client.items(`author`).readMany({})).toEqual({ data: [] });
+    expect(await client.items(`author`).readMany([])).toEqual({ data: [] });
 
     await client.items(`author`).createMany([
       {
@@ -43,7 +43,7 @@ describe(`Directus SDK`, () => {
       .items(`author`)
       .deleteMany([`john.doe@example.com`, `jane.doe@example.com`]);
 
-    expect(await client.items(`author`).readMany({})).toEqual({ data: [] });
+    expect(await client.items(`author`).readMany([])).toEqual({ data: [] });
 
     await client.items(`author`).createMany([
       {
@@ -116,12 +116,12 @@ describe(`Directus SDK`, () => {
       .items(`author`)
       .deleteMany([`john.doe@example.com`, `jane.doe@example.com`]);
 
-    expect(await client.items(`article_author`).readMany({})).toEqual({
+    expect(await client.items(`article_author`).readMany([])).toEqual({
       data: [],
     });
 
     await client.items(`article`).deleteMany([`article1`]);
 
-    expect(await client.items(`article`).readMany({})).toEqual({ data: [] });
+    expect(await client.items(`article`).readMany([])).toEqual({ data: [] });
   });
 });

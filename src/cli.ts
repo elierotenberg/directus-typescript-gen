@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
-import { promises } from "fs";
-import { resolve } from "path";
+import { writeFile } from "node:fs/promises";
+import { resolve } from "node:path";
 
-import { snakeCase } from "change-case";
-import fetch from "node-fetch";
 import { z } from "zod";
 import yargs from "yargs";
 import openApiTs, { OpenAPI3 } from "openapi-typescript";
@@ -13,90 +11,156 @@ const Argv = z.object({
   host: z.string(),
   email: z.string(),
   password: z.string(),
-  typeName: z.string(),
+  passwordIsStaticToken: z.boolean(),
+  appTypeName: z.string(),
+  directusTypeName: z.string(),
+  allTypeName: z.string(),
   specOutFile: z.string().nullish(),
   outFile: z.string(),
 });
 
 type Argv = z.infer<typeof Argv>;
 
-const main = async (): Promise<void> => {
-  const argv = Argv.parse(
-    await yargs(process.argv.slice(2))
-      .option(`host`, { demandOption: true, type: `string` })
-      .option(`email`, { demandOption: true, type: `string` })
-      .option(`password`, { demandOption: true, type: `string` })
-      .option(`typeName`, { demandOption: true, type: `string` })
-      .option(`specOutFile`, { demandOption: false, type: `string` })
-      .option(`outFile`, { demandOption: true, type: `string` })
-      .help().argv,
-  );
-
-  const { host, email, password, typeName, specOutFile, outFile } = argv;
-
-  const {
-    data: { access_token: token },
-  } = await (
-    await fetch(new URL(`/auth/login`, host).href, {
-      method: `post`,
-      body: JSON.stringify({ email, password, mode: `json` }),
-      headers: {
-        "Content-Type": `application/json`,
-      },
+const argv = Argv.parse(
+  await yargs(process.argv.slice(2))
+    .option(`host`, { demandOption: true, type: `string` })
+    .option(`email`, { demandOption: true, type: `string` })
+    .option(`password`, { demandOption: true, type: `string` })
+    .option(`passwordIsStaticToken`, {
+      demandOption: false,
+      type: `boolean`,
+      default: false,
     })
-  ).json();
-
-  const spec = await (
-    await fetch(`${host}/server/specs/oas`, {
-      method: `get`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    .option(`appTypeName`, {
+      alias: `typeName`,
+      demandOption: false,
+      type: `string`,
+      default: `AppCollections`,
     })
-  ).json();
-
-  if (specOutFile) {
-    await promises.writeFile(
-      resolve(process.cwd(), specOutFile),
-      JSON.stringify(spec, null, 2),
-      {
-        encoding: `utf-8`,
-      },
-    );
-  }
-
-  const baseSource = openApiTs(spec as OpenAPI3);
-
-  const itemPattern = /^    Items([^\:]*)/;
-
-  const exportProperties = baseSource
-    .split(`\n`)
-    .map((line) => {
-      const match = line.match(itemPattern);
-      if (!match) {
-        return null;
-      }
-      const [, collectionName] = match;
-      const propertyKey = snakeCase(collectionName);
-      return `  ${propertyKey}: components["schemas"]["Items${collectionName}"];`;
+    .option(`directusTypeName`, {
+      demandOption: false,
+      type: `string`,
+      default: `DirectusCollections`,
     })
-    .filter((line): line is string => typeof line === `string`)
-    .join(`\n`);
+    .option(`allTypeName`, {
+      demandOption: false,
+      type: `string`,
+      default: `Collections`,
+    })
+    .option(`specOutFile`, { demandOption: false, type: `string` })
+    .option(`outFile`, { demandOption: true, type: `string` })
+    .help().argv,
+);
 
-  const exportSource = `export type ${typeName} = {\n${exportProperties}\n};`;
+const {
+  host,
+  email,
+  password,
+  passwordIsStaticToken,
+  appTypeName: appCollectionsTypeName,
+  directusTypeName: directusCollectionsTypeName,
+  allTypeName: allCollectionsTypeName,
+  specOutFile,
+  outFile,
+} = argv;
 
-  const source = [baseSource, exportSource].join(`\n`);
-
-  await promises.writeFile(resolve(process.cwd(), outFile), source, {
-    encoding: `utf-8`,
+let token;
+if (passwordIsStaticToken) {
+  token = password;
+}
+else {
+  const response = await fetch(new URL(`/auth/login`, host).href, {
+    method: `post`,
+    body: JSON.stringify({ email, password, mode: `json` }),
+    headers: {
+      "Content-Type": `application/json`,
+    },
   });
+
+  const json = await response.json() as {
+    data: {
+      access_token: string;
+    };
+  };
+
+  token = json.data.access_token;
+}
+
+type EnrichedOpenAPI3 = OpenAPI3 & {
+  components: {
+    schemas: {
+      [key: string]: {
+        [`x-collection`]: string;
+      };
+    };
+  };
 };
 
-if (require.main === module) {
-  main().catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
-} else {
-  throw new Error(`This should be the main module.`);
+type SpecResponse = EnrichedOpenAPI3 | {
+  errors: unknown[];
+};
+
+const spec = (await (
+  await fetch(`${host}/server/specs/oas`, {
+    method: `get`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+).json()) as SpecResponse;
+
+function assertSpecHasNoErrors(spec: SpecResponse): asserts spec is EnrichedOpenAPI3 {
+  if ('errors' in spec && spec.errors.length) {
+    console.error(spec.errors);
+    throw new Error('Could not generate TypeScript definitions');
+  }
 }
+
+assertSpecHasNoErrors(spec);
+
+if (specOutFile) {
+  await writeFile(
+    resolve(process.cwd(), specOutFile),
+    JSON.stringify(spec, null, 2),
+    {
+      encoding: `utf-8`,
+    },
+  );
+}
+
+const baseSource = await openApiTs(spec);
+
+const exportUserCollectionsProperties: string[] = [];
+const exportDirectusCollectionsProperties: string[] = [];
+
+for (const [schemaKey, schema] of Object.entries(spec.components.schemas)) {
+  const collectionId = schema[`x-collection`];
+  const line = `  ${collectionId}: components["schemas"]["${schemaKey}"];`;
+  const isUserCollection = schemaKey.startsWith(`Items`);
+
+  (isUserCollection
+    ? exportUserCollectionsProperties
+    : exportDirectusCollectionsProperties
+  ).push(line);
+}
+
+const exportUserCollectionsType = `export type ${appCollectionsTypeName} = {\n${exportUserCollectionsProperties.join(
+  `\n`,
+)}\n};\n`;
+
+const exportDirectusCollectionsType = `export type ${directusCollectionsTypeName} = {\n${exportDirectusCollectionsProperties.join(
+  `\n`,
+)}\n};\n`;
+
+const exportAllCollectionsType = `export type ${allCollectionsTypeName} = ${directusCollectionsTypeName} & ${appCollectionsTypeName};\n`;
+
+const source = [
+  baseSource,
+  exportUserCollectionsType,
+  exportDirectusCollectionsType,
+  exportAllCollectionsType,
+].join(`\n`);
+
+await writeFile(resolve(process.cwd(), outFile), source, {
+  encoding: `utf-8`,
+});
