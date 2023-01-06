@@ -12,9 +12,10 @@ const Argv = z.object({
   host: z.string(),
   email: z.string(),
   password: z.string(),
-  appTypeName: z.string().optional(),
-  directusTypeName: z.string().optional(),
-  allTypeName: z.string().optional(),
+  passwordIsStaticToken: z.boolean(),
+  appTypeName: z.string(),
+  directusTypeName: z.string(),
+  allTypeName: z.string(),
   specOutFile: z.string().nullish(),
   outFile: z.string(),
 });
@@ -26,6 +27,11 @@ const argv = Argv.parse(
     .option(`host`, { demandOption: true, type: `string` })
     .option(`email`, { demandOption: true, type: `string` })
     .option(`password`, { demandOption: true, type: `string` })
+    .option(`passwordIsStaticToken`, {
+      demandOption: false,
+      type: `boolean`,
+      default: false,
+    })
     .option(`appTypeName`, {
       alias: `typeName`,
       demandOption: false,
@@ -51,6 +57,7 @@ const {
   host,
   email,
   password,
+  passwordIsStaticToken,
   appTypeName: appCollectionsTypeName,
   directusTypeName: directusCollectionsTypeName,
   allTypeName: allCollectionsTypeName,
@@ -58,17 +65,27 @@ const {
   outFile,
 } = argv;
 
-const {
-  data: { access_token: token },
-} = (await (
-  await fetch(new URL(`/auth/login`, host).href, {
+let token;
+if (passwordIsStaticToken) {
+  token = password;
+}
+else {
+  const response = await fetch(new URL(`/auth/login`, host).href, {
     method: `post`,
     body: JSON.stringify({ email, password, mode: `json` }),
     headers: {
       "Content-Type": `application/json`,
     },
-  })
-).json()) as { data: { access_token: string } };
+  });
+
+  const json = await response.json() as {
+    data: {
+      access_token: string;
+    };
+  };
+
+  token = json.data.access_token;
+}
 
 const spec = (await (
   await fetch(`${host}/server/specs/oas`, {
