@@ -86,14 +86,7 @@ else {
   token = json.data.access_token;
 }
 
-const spec = (await (
-  await fetch(`${host}/server/specs/oas`, {
-    method: `get`,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
-).json()) as (OpenAPI3 & {
+type EnrichedOpenAPI3 = OpenAPI3 & {
   components: {
     schemas: {
       [key: string]: {
@@ -101,14 +94,29 @@ const spec = (await (
       };
     };
   };
-}) | {
+};
+
+type SpecResponse = EnrichedOpenAPI3 | {
   errors: unknown[];
 };
 
-if ('errors' in spec && spec.errors.length) {
-  console.error(spec.errors);
-  process.exit(1);
+const spec = (await (
+  await fetch(`${host}/server/specs/oas`, {
+    method: `get`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+).json()) as SpecResponse;
+
+function assertSpecHasNoErrors(spec: SpecResponse): asserts spec is EnrichedOpenAPI3 {
+  if ('errors' in spec && spec.errors.length) {
+    console.error(spec.errors);
+    throw new Error('Could not generate TypeScript definitions');
+  }
 }
+
+assertSpecHasNoErrors(spec);
 
 if (specOutFile) {
   await writeFile(
