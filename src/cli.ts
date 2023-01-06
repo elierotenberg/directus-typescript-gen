@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
-import { promises } from "fs";
-import { resolve } from "path";
+import { writeFile } from "node:fs/promises";
+import { resolve } from "node:path";
 
-import fetch from "node-fetch";
 import { z } from "zod";
 import yargs from "yargs";
 import openApiTs, { OpenAPI3 } from "openapi-typescript";
@@ -94,7 +93,7 @@ const spec = (await (
       Authorization: `Bearer ${token}`,
     },
   })
-).json()) as OpenAPI3 & {
+).json()) as (OpenAPI3 & {
   components: {
     schemas: {
       [key: string]: {
@@ -102,10 +101,17 @@ const spec = (await (
       };
     };
   };
+}) | {
+  errors: unknown[];
 };
 
+if ('errors' in spec && spec.errors.length) {
+  console.error(spec.errors);
+  process.exit(1);
+}
+
 if (specOutFile) {
-  await promises.writeFile(
+  await writeFile(
     resolve(process.cwd(), specOutFile),
     JSON.stringify(spec, null, 2),
     {
@@ -147,6 +153,6 @@ const source = [
   exportAllCollectionsType,
 ].join(`\n`);
 
-await promises.writeFile(resolve(process.cwd(), outFile), source, {
+await writeFile(resolve(process.cwd(), outFile), source, {
   encoding: `utf-8`,
 });
