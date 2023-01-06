@@ -12,6 +12,8 @@ Use the generator on a running Directus server to generate the TypeScript defini
 npx directus-typescript-gen --host http://localhost:8055 --email admin@example.com --password <...> --typeName MyCollections --directusTypeName DirectusCollections --outFile my-collections.d.ts
 ```
 
+When using Two-factor Authentication, you can use a Static Token instead of a password and pass the `--passwordIsStaticToken=true` flag.
+
 The generated file will look somewhat like:
 
 ```ts
