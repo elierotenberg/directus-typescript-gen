@@ -1,59 +1,51 @@
 {
-  "name": "directus-typescript-gen",
-  "version": "0.2.1",
-  "description": "Extract type definitions from a live Directus server",
-  "main": "build/cli.js",
-  "bin": {
-    "directus-typescript-gen": "./build/cli.js"
-  },
-  "scripts": {
-    "build": "rm -rf build && tsc -p . && chmod u+x ./build/cli.js",
-    "test:build": "jest build",
-    "test:src": "jest src",
-    "test": "jest build",
-    "test-env:docker:up": "docker-compose -f docker-compose.test.yml up --build",
-    "test-env:docker:down": "docker-compose -f docker-compose.test.yml down -v",
-    "test-env:docker": "npm run test-env:docker:down && npm run test-env:docker:up",
-    "test-env:cli": "npm run build && node build/cli.js",
-    "test-env:cli:gen": "npm run test-env:cli -- --host http://localhost:17055 --email admin@example.com --password admin-password --typeName MyCollections --specOutFile src/__tests__/fixtures/directus.spec.json --outFile src/__tests__/fixtures/directus.gen.d.ts"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/elierotenberg/directus-typescript-gen.git"
-  },
-  "author": "Elie Rotenberg <elie@rotenberg.io>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/elierotenberg/directus-typescript-gen/issues"
-  },
-  "homepage": "https://github.com/elierotenberg/directus-typescript-gen#readme",
-  "devDependencies": {
-    "@directus/sdk": "*",
-    "@types/jest": "^26.0.23",
-    "@typescript-eslint/eslint-plugin": "^4.26.1",
-    "@typescript-eslint/parser": "^4.26.1",
-    "eslint": "^7.28.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.23.4",
-    "eslint-plugin-prettier": "^3.4.0",
-    "jest": "^27.0.4",
-    "prettier": "^2.3.1",
-    "ts-jest": "^27.0.3",
-    "typescript": "^4.3.2"
-  },
+  "bin": "./build/cli.cjs",
   "dependencies": {
-    "@types/js-yaml": "^4.0.1",
-    "@types/node": "^15.12.2",
-    "@types/node-fetch": "^2.5.10",
-    "@types/yargs": "^17.0.0",
-    "change-case": "^4.1.2",
-    "js-yaml": "^4.1.0",
-    "json-schema-to-typescript": "^10.1.4",
-    "node-fetch": "^2.6.1",
-    "openapi-typescript": "^3.4.1",
-    "tslib": "^2.3.0",
-    "typed-utilities": "^1.11.0",
-    "yargs": "^17.0.1",
-    "zod": "^3.2.0"
-  }
+    "openapi-typescript": "^6.7.0",
+    "yargs": "^17.7.2",
+    "zod": "^3.22.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.5",
+    "@types/node": "^20.6.3",
+    "@typescript-eslint/eslint-plugin": "^6.7.2",
+    "@typescript-eslint/parser": "^6.7.2",
+    "esbuild": "^0.19.3",
+    "eslint": "^8.49.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-sort-destructure-keys": "^1.5.0",
+    "eslint-plugin-sort-keys-fix": "^1.1.2",
+    "jest": "^29.7.0",
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2"
+  },
+  "exports": {
+    ".": {
+      "import": "./build/index.mjs",
+      "require": "./build/index.cjs",
+      "types": "./build/index.d.ts"
+    }
+  },
+  "files": [
+    "./build/**/*.{js,cjs,mjs,d.ts}",
+    "./build/**/*.{js,cjs,mjs,d.ts}.map"
+  ],
+  "main": "./build/index.cjs",
+  "name": "directus-typescript-gen",
+  "scripts": {
+    "build": "npm run build:clean && npm run build:esbuild && npm run build:eslint && npm run build:tsc",
+    "build:clean": "rm -rf build",
+    "build:esbuild": "./esbuild.mjs",
+    "build:eslint": "eslint src",
+    "build:graphql": "graphql-codegen",
+    "build:schemas": "./build-schemas.mjs",
+    "build:tsc": "tsc --emitDeclarationOnly",
+    "cli": "node ./build/cli.mjs",
+    "test": "jest"
+  },
+  "type": "module",
+  "types": "./build/index.d.ts",
+  "version": "1.0.0"
 }
