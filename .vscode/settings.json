@@ -1,50 +1,64 @@
 {
-  "editor.fontLigatures": true,
-  "editor.suggestSelection": "recentlyUsed",
-  "editor.tabSize": 2,
-  "emmet.showAbbreviationSuggestions": false,
-  "emmet.showExpandedAbbreviation": "never",
-  "emmet.excludeLanguages": [
-    "typescript",
-    "javascript"
-  ],
-  "eslint.packageManager": "npm",
-  "eslint.options": {
-    "extensions": [
-      ".js",
-      ".ts"
-    ]
-  },
-  "eslint.workingDirectories": [
-    {
-      "directory": ".",
-      "changeProcessCWD": true
-    },
-  ],
-  "eslint.lintTask.enable": true,
-  "files.associations": {
-    "*.sql": "sql",
-    "*.d.ts": "typescript"
-  },
-  "files.autoSave": "off",
-  "javascript.updateImportsOnFileMove.enabled": "always",
   "[javascript]": {
+    "editor.formatOnSave": false
+  },
+  "[javascriptreact]": {
     "editor.formatOnSave": false
   },
   "[typescript]": {
     "editor.formatOnSave": false
   },
-  "typescript.preferences.importModuleSpecifier": "relative",
-  "typescript.suggest.paths": true,
+  "[typescriptreact]": {
+    "editor.formatOnSave": false
+  },
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "pgFormatter.placeholder": "\\$\\{.*\\}",
-  "pgFormatter.noGrouping": true,
-  "pgFormatter.commaBreak": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.fontLigatures": true,
+  "editor.formatOnSave": true,
+  "editor.gotoLocation.multipleTypeDefinitions": "goto",
+  "editor.guides.bracketPairs": true,
+  "editor.quickSuggestions": {
+    "comments": "on",
+    "other": "on",
+    "strings": "on"
+  },
+  "editor.quickSuggestionsDelay": 0,
+  "editor.snippetSuggestions": "none",
+  "editor.suggest.localityBonus": true,
   "editor.suggest.showSnippets": false,
   "editor.suggest.snippetsPreventQuickSuggestions": false,
-  "editor.snippetSuggestions": "none",
-  "editor.wordWrap": "on",
-  "editor.formatOnSave": true
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.suggestSelection": "recentlyUsed",
+  "editor.tabCompletion": "on",
+  "editor.tabSize": 2,
+  "editor.wordSeparators": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?_",
+  "emmet.excludeLanguages": [
+    "html",
+    "javascript",
+    "javascriptreact",
+    "markdown",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.lintTask.enable": true,
+  "files.autoSave": "off",
+  "javascript.referencesCodeLens.enabled": true,
+  "javascript.referencesCodeLens.showOnAllFunctions": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "json.format.enable": true,
+  "json.sortOnSave.enable": true,
+  "references.preferredLocation": "view",
+  "terminal.integrated.enablePersistentSessions": false,
+  "typescript.implementationsCodeLens.enabled": true,
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.referencesCodeLens.enabled": true,
+  "typescript.referencesCodeLens.showOnAllFunctions": true,
+  "typescript.suggest.paths": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "yaml.format.enable": true,
+  "yaml.maxItemsComputed": 5000000,
+  "yaml.validate": false
 }

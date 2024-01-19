@@ -1,6 +1,6 @@
 # directus-typescript-gen
 
-Dynamically extract typings from a live Directus server and generate TypeScript definition files to be used by the Directus TypeScript SDK!
+Dynamically extract typings from an OpenAPI schema or live Directus server and generate TypeScript definition files to be used by the Directus TypeScript SDK!
 
 This enables type-checking, autocompletion, and other TypeScript goodness.
 
@@ -9,7 +9,13 @@ This enables type-checking, autocompletion, and other TypeScript goodness.
 Use the generator on a running Directus server to generate the TypeScript definitions:
 
 ```
-npx directus-typescript-gen --host http://localhost:8055 --email admin@example.com --password <...> --typeName MyCollections --outFile my-collections.d.ts
+# Generate from a spec file
+npx directus-typescript-gen -i directus.oas.json > schema.d.ts
+# Generate from a running server
+npx directus-typescript-gen --host http://localhost:8055 --email admin@example.com --password <...> --outFile my-collections.d.ts
+# Change exported type name (default is "Schema")
+npx directus-typescript-gen -i directus.oas.json --typeName MyCollections > schema.d.ts
+
 ```
 
 The generated file will look like:
